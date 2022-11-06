@@ -5,19 +5,20 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 
+#define OPND_SIZE 1024
 #define BUF_SIZE 1024
 void error_handling(char *message);
 
 int main(int argc, char *argv[])
 {
 	int serv_sock, clnt_sock;
-	char message[BUF_SIZE];
+	char message[BUF_SIZE],op;
 	int str_len, i;
-	
+	int opnd_cnt;//oprends count
 	struct sockaddr_in serv_adr;
 	struct sockaddr_in clnt_adr;
 	socklen_t clnt_adr_sz;
-	
+	int oprends[OPND_SIZE];
 	if(argc!=2) {
 		printf("Usage : %s <port>\n", argv[0]);
 		exit(1);
@@ -47,9 +48,18 @@ int main(int argc, char *argv[])
 			error_handling("accept() error");
 		else
 			printf("Connected client %d \n", i+1);
-	
-		while((str_len=read(clnt_sock, message, BUF_SIZE))!=0)
-			write(clnt_sock, message, str_len);
+		read(clnt_sock,&opnd_cnt,4);
+		printf("%d",opnd_cnt);
+		for(int i=0;i<opnd_cnt;i++){
+			read(clnt_sock,&oprends[i],4);
+			printf("%d\n",oprends[i]);
+		}
+		read(clnt_sock,&op,1);
+		
+
+		write(clnt_sock, &opnd_cnt, 4);
+		// while((str_len=read(clnt_sock, message, BUF_SIZE))!=0)
+		// 	write(clnt_sock, message, str_len);
 
 		close(clnt_sock);
 	}

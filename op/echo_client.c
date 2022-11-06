@@ -11,10 +11,11 @@ void error_handling(char *message);
 int main(int argc, char *argv[])
 {
 	int sock;
-	char message[BUF_SIZE];
+	char message[BUF_SIZE],op;
 	int str_len, recv_len, recv_cnt;
 	struct sockaddr_in serv_adr;
-
+	int opnd_cnt;//oprends count
+	
 	if(argc!=3) {
 		printf("Usage : %s <IP> <port>\n", argv[0]);
 		exit(1);
@@ -33,29 +34,44 @@ int main(int argc, char *argv[])
 		error_handling("connect() error!");
 	else
 		puts("Connected...........");
-	
-	while(1) 
-	{
-		fputs("Input message(Q to quit): ", stdout);
-		fgets(message, BUF_SIZE, stdin);
-		
-		if(!strcmp(message,"q\n") || !strcmp(message,"Q\n"))
-			break;
+	fputs("Input opnd_cnt:", stdout);
+	scanf("%d",&opnd_cnt);getchar();
+	write(sock,&opnd_cnt,4);
 
-		str_len=write(sock, message, strlen(message));
-		
-		recv_len=0;
-		while(recv_len<str_len)
-		{
-			recv_cnt=read(sock, &message[recv_len], BUF_SIZE-1);
-			if(recv_cnt==-1)
-				error_handling("read() error!");
-			recv_len+=recv_cnt;
-		}
-		
-		message[recv_len]=0;
-		printf("Message from server: %s", message);
+	for(int i=1;i<=opnd_cnt;i++){
+		printf("Input %d op :",i);
+		int oprend;
+		scanf("%d",&oprend);getchar();
+		write(sock,&oprend,4);
 	}
+	printf("Input op_kind : ");
+	scanf("%c",&op);
+	write(sock,&op,1);
+	int result;
+	read(sock,&result,4);
+	printf("Answer is %d\n",result);
+	// while(1) 
+	// {
+		
+	// 	fgets(message, BUF_SIZE, stdin);
+		
+	// 	if(!strcmp(message,"q\n") || !strcmp(message,"Q\n"))
+	// 		break;
+
+	// 	str_len=write(sock, message, strlen(message));
+		
+	// 	recv_len=0;
+	// 	while(recv_len<str_len)
+	// 	{
+	// 		recv_cnt=read(sock, &message[recv_len], BUF_SIZE-1);
+	// 		if(recv_cnt==-1)
+	// 			error_handling("read() error!");
+	// 		recv_len+=recv_cnt;
+	// 	}
+		
+	// 	message[recv_len]=0;
+	// 	printf("Message from server: %s", message);
+	// }
 	close(sock);
 	return 0;
 }
